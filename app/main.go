@@ -29,11 +29,13 @@ func main() {
 	au := _usecase.NewProductUseCase(productRepo)
 	ou := _usecase.NewOrderUseCase(productRepo, orderRepo)
 	pu := _usecase.NewPaymentUseCase(productRepo, orderRepo, transactionRepo)
+	cu := _usecase.NewCheckOutUseCase(productRepo, orderRepo, transactionRepo)
 
 	// initial handler
 	_handler.NewProductHandler(e, au)
 	_handler.NewOrderHandler(e, ou)
 	_handler.NewPaymentHandler(e, pu)
+	_handler.NewCheckOutHandler(e, cu)
 
 	log.Fatal(e.Start(port))
 }

@@ -2,27 +2,27 @@ package handler
 
 import (
 	error2 "evermos_technical_test/error"
-	"evermos_technical_test/pkg/dto/payment"
+	"evermos_technical_test/pkg/dto/checkout"
 	"evermos_technical_test/pkg/usecase"
 	validator2 "evermos_technical_test/pkg/validator"
 	"github.com/labstack/echo"
 	"net/http"
 )
 
-type PaymentHandler struct {
-	paymentUseCase *usecase.PaymentUseCase
+type CheckOutHandler struct {
+	checkOutUseCase *usecase.CheckOutUseCase
 }
 
-func NewPaymentHandler(e *echo.Echo, us *usecase.PaymentUseCase) {
-	handler := &PaymentHandler{
-		paymentUseCase: us,
+func NewCheckOutHandler(e *echo.Echo, us *usecase.CheckOutUseCase) {
+	handler := &CheckOutHandler{
+		checkOutUseCase: us,
 	}
 	// ENDPOINT
-	e.PATCH("/transactions/payments", handler.PaymentProcess)
+	e.POST("/transactions/checkouts", handler.CheckOutProcess)
 }
 
-func (p PaymentHandler) PaymentProcess(context echo.Context) (err error) {
-	var request payment.PaymentRequest
+func (p CheckOutHandler) CheckOutProcess(context echo.Context) (err error) {
+	var request checkout.CheckOutRequest
 
 	// collect request
 	err = context.Bind(&request)
@@ -39,7 +39,7 @@ func (p PaymentHandler) PaymentProcess(context echo.Context) (err error) {
 	}
 
 	// call useCase
-	res, err := p.paymentUseCase.Process(&request)
+	res, err := p.checkOutUseCase.Process(&request)
 
 	if err != nil {
 		return context.JSON(error2.GetStatusCode(err), error2.ResponseError{Message: err.Error()})

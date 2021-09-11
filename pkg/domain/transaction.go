@@ -8,5 +8,7 @@ type Transaction struct {
 	OrderId           uint
 	TransactionDate   time.Time `gorm:"autoCreateTime"`
 	Status            string
+	ExpiredAt         time.Time
+	TransactionToken  string
 	Amount            int32
 }
