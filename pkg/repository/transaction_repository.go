@@ -71,3 +71,57 @@ func (o TransactionRepository) UpdateTransaction(id uint, req *domain.Transactio
 	}
 	return res, nil
 }
+
+func (p TransactionRepository) GetTransactionByOrderId(id uint) (res *domain.Transaction, err error) {
+	var transaction domain.Transaction
+
+	// connect to databse
+	connect, err := p.config.Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	// query to databse
+	err2 := connect.Find(&transaction, "order_id=?", id).Error
+	if err2 != nil {
+		return nil, err2
+	}
+
+	// close konneksi database
+	connect.Close()
+
+	// decode object respon dari database
+	err = mapstructure.Decode(transaction, &res)
+
+	if err != nil {
+		return nil, nil
+	}
+	return res, nil
+}
+
+func (p TransactionRepository) GetTransactionByToken(token string) (res *domain.Transaction, err error) {
+	var transaction domain.Transaction
+
+	// connect to databse
+	connect, err := p.config.Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	// query to databse
+	err2 := connect.Find(&transaction, "transaction_token=?", token).Error
+	if err2 != nil {
+		return nil, err2
+	}
+
+	// close konneksi database
+	connect.Close()
+
+	// decode object respon dari database
+	err = mapstructure.Decode(transaction, &res)
+
+	if err != nil {
+		return nil, nil
+	}
+	return res, nil
+}

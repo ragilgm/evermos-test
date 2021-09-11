@@ -12,7 +12,9 @@ var (
 	// ErrNotFound will throw if the requested item is not exists
 	ErrNotFound = errors.New("Resource Not Found")
 	// ErrConflict will throw if the current action already exists
-	ErrConflict = errors.New("Product Already Exist")
+	ErrConflict = errors.New("Confict")
+
+	ErrBadRequest = errors.New("Request body not valid")
 	// ErrBadParamInput will throw if the given request-body or params is not valid
 	ErrBadParamInput = errors.New("Invalid Parameter")
 )
