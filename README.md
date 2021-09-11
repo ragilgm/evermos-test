@@ -70,4 +70,10 @@ update stock from on hold -> stock sold out
 if the payment is not made until the deadline
 then return the stock from stock on hold -> stock available 
 
+diagram flow checkout
 
+![](../flow checkout.jpg)
+
+flow payment
+
+![](../flow payment.jpg)
