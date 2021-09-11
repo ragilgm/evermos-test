@@ -74,12 +74,12 @@ then return the stock from stock on hold -> stock available
 
 diagram flow checkout
 
-![](../flow checkout.jpg)
+![img_1.png](img_1.png)
 
 flow payment
 
-![](../flow payment.jpg)
+![img_2.png](img_2.png)
 
 flow scheduler
 
-![](../Flow Scheduler.jpg)
+![img_3.png](img_3.png)
