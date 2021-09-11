@@ -45,5 +45,5 @@ func (p PaymentHandler) PaymentProcess(context echo.Context) (err error) {
 		return context.JSON(error2.GetStatusCode(err), error2.ResponseError{Message: err.Error()})
 	}
 
-	return context.JSON(http.StatusCreated, res)
+	return context.JSON(http.StatusOK, res)
 }
