@@ -67,6 +67,8 @@ wait until the payment deadline
 if the payment is successful
 update stock from on hold -> stock sold out
 
+create scheduler for check expired time
+
 if the payment is not made until the deadline
 then return the stock from stock on hold -> stock available 
 
@@ -77,3 +79,7 @@ diagram flow checkout
 flow payment
 
 ![](../flow payment.jpg)
+
+flow scheduler
+
+![](../Flow Scheduler.jpg)
