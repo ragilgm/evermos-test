@@ -38,7 +38,6 @@ const (
 )
 
 func (c CheckOutUseCase) Process(data interface{}) (interface{}, error) {
-	c.mutex.Lock()
 	// cash request interface to object
 	request := data.(*checkout.CheckOutRequest)
 
@@ -89,7 +88,7 @@ func (c CheckOutUseCase) Process(data interface{}) (interface{}, error) {
 
 			go func() {
 				// update stock product
-
+				c.mutex.Lock()
 				_, err := c.productRepo.UpdateProduct(product.ID, product)
 				c.mutex.Unlock()
 				if err != nil {

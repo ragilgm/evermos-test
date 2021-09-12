@@ -7,6 +7,7 @@ import (
 	validator2 "evermos_technical_test/pkg/validator"
 	"github.com/labstack/echo"
 	"net/http"
+	"sync"
 )
 
 type CheckOutHandler struct {
@@ -23,25 +24,57 @@ func NewCheckOutHandler(e *echo.Echo, us *usecase.CheckOutUseCase) {
 
 func (p CheckOutHandler) CheckOutProcess(context echo.Context) (err error) {
 	var request checkout.CheckOutRequest
-	// collect request
-	err = context.Bind(&request)
+	var response *checkout.CheckoutResponse
+	var errStatus = http.StatusCreated
+	var waitGroup sync.WaitGroup
+	var mutex sync.Mutex
+	waitGroup.Add(1)
 
-	// check request null
+	go func() {
+		// collect request
+		err = context.Bind(&request)
+
+		// check validate request
+		var ok bool
+
+		mutex.Lock()
+		ok, err1 := validator2.ValidateRequest(&request)
+		if !ok {
+			errStatus = http.StatusBadRequest
+			err = err1
+
+			// set wait group done
+			waitGroup.Done()
+			return
+		}
+		mutex.Unlock()
+
+		mutex.Lock()
+		res, err2 := p.CheckOutUseCase.Process(&request)
+		if err2 != nil {
+			err = err2
+			errStatus = error2.GetStatusCode(err)
+
+			// set wait group done
+			waitGroup.Done()
+			return
+		}
+		if res != nil {
+			response = res.(*checkout.CheckoutResponse)
+		}
+		mutex.Unlock()
+
+		// set wait group done
+		waitGroup.Done()
+
+	}()
+
+	// wait wait grop done
+	waitGroup.Wait()
+
 	if err != nil {
-		return context.JSON(http.StatusUnprocessableEntity, err.Error())
+		return context.JSON(errStatus, error2.ResponseError{Message: err.Error()})
 	}
 
-	// check validate request
-	var ok bool
-	if ok, err = validator2.ValidateRequest(&request); !ok {
-		return context.JSON(http.StatusBadRequest, err.Error())
-	}
-
-	res, err := p.CheckOutUseCase.Process(&request)
-
-	if err != nil {
-		return context.JSON(error2.GetStatusCode(err), error2.ResponseError{Message: err.Error()})
-	}
-
-	return context.JSON(http.StatusCreated, res)
+	return context.JSON(http.StatusCreated, response)
 }
