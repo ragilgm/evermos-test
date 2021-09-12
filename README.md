@@ -64,7 +64,14 @@ Solution :
 
 https://medium.com/dm03514-tech-blog/golang-introduction-to-race-conditions-for-the-web-engineer-738513ab2ec2
 
-I don't know how to implement this properly but I think it's a workaround for dealing with flashshale where racing conditions are bound to happen
+The first thing that needs to be implemented is
+goroutines to handle concurrent processes
+
+because if I describe it during flashale it will be like this flow
+
+![img_7.png](img_7.png)
+
+oleh karena itu kita perlu mengimplementasikan goroutine , dan untuk menangani kondisi balapan kita perlu mengimplementasikan mutex dan waitgroup juga
 
 2. and to improve stock reduction
 
