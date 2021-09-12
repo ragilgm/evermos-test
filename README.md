@@ -71,7 +71,7 @@ because if I describe it during flashale it will be like this flow
 
 ![img_7.png](img_7.png)
 
-oleh karena itu kita perlu mengimplementasikan goroutine , dan untuk menangani kondisi balapan kita perlu mengimplementasikan mutex dan waitgroup juga
+therefore we need to implement goroutine , and to handle race conditions we need to implement mutex and waitgroup as well
 
 2. and to improve stock reduction
 
