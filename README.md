@@ -11,7 +11,11 @@ schema database
 how to run 
 
 how to run:
-create a database with a free name {databaseName} and the configuration url, usename, and password in folder config/config_db.go 
+
+first create a database with a free name {databaseName} and the configuration url, usename, and password in folder config/config_db.go 
+
+if you use mysql then download the dependencies first, but here I use postgres for the database
+
 
 if there is an error dependency is not found, first download the required dependency.
 with syntax: go get {dependency}
