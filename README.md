@@ -32,7 +32,7 @@ write the following syntax for run project
 
 go run ./app
 
-
+I have attached the specification api documentation with the file name API Specification Online Store Test.pdf
 
 Question :
 
