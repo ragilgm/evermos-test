@@ -103,3 +103,5 @@ flow payment
 flow scheduler
 
 ![img_3.png](img_3.png)
+
+Due to time constraints, here I can only explain the flow for the API implementation, while I have not implemented the scheduler yet.
