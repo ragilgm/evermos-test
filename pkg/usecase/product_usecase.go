@@ -6,14 +6,17 @@ import (
 	product2 "evermos_technical_test/pkg/dto/product"
 	"evermos_technical_test/pkg/repository"
 	"github.com/mitchellh/mapstructure"
+	"sync"
 )
 
 type ProductUseCase struct {
+	mutex       sync.Mutex
 	productRepo *repository.ProductRepository
 }
 
-func NewProductUseCase(a *repository.ProductRepository) *ProductUseCase {
+func NewProductUseCase(mutex sync.Mutex, a *repository.ProductRepository) *ProductUseCase {
 	return &ProductUseCase{
+		mutex:       mutex,
 		productRepo: a,
 	}
 }
@@ -23,7 +26,11 @@ func (p ProductUseCase) GetProducts() (res *[]product2.ProductResponse, err erro
 	if err != nil {
 		return nil, err
 	}
-	mapstructure.Decode(result, &res)
+
+	err = mapstructure.Decode(result, &res)
+	if err != nil {
+		return nil, err
+	}
 	return res, nil
 }
 
@@ -33,35 +40,50 @@ func (p ProductUseCase) GetProductById(id uint) (res *product2.ProductResponse, 
 		return nil, error2.ErrNotFound
 	}
 
-	mapstructure.Decode(result, &res)
+	err = mapstructure.Decode(result, &res)
+	if err != nil {
+		return nil, err
+	}
 	return res, nil
 }
 
 func (p ProductUseCase) UpdateProduct(id uint, req *product2.ProductRequest) (res *product2.ProductResponse, err error) {
 	var product = domain.Product{}
 
-	mapstructure.Decode(req, &product)
+	err = mapstructure.Decode(req, &product)
+	if err != nil {
+		return nil, err
+	}
 
 	result, err := p.productRepo.UpdateProduct(id, &product)
 	if err != nil {
 		return nil, error2.ErrNotFound
 	}
 
-	mapstructure.Decode(result, &res)
+	err = mapstructure.Decode(result, &res)
+	if err != nil {
+		return nil, err
+	}
 	return res, nil
 }
 
 func (p ProductUseCase) CreateProduct(req *product2.ProductRequest) (res *product2.ProductResponse, err error) {
 	var product = domain.Product{}
 
-	mapstructure.Decode(req, &product)
+	err = mapstructure.Decode(req, &product)
+	if err != nil {
+		return nil, err
+	}
 
 	result, err := p.productRepo.CreateProduct(&product)
 	if err != nil {
-		return nil, error2.ErrBadParamInput
+		return nil, error2.ErrBadRequest
 	}
 
-	mapstructure.Decode(result, &res)
+	err = mapstructure.Decode(result, &res)
+	if err != nil {
+		return nil, err
+	}
 
 	return res, nil
 }

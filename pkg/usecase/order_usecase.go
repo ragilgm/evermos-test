@@ -6,16 +6,19 @@ import (
 	"evermos_technical_test/pkg/dto/order"
 	"evermos_technical_test/pkg/repository"
 	"github.com/mitchellh/mapstructure"
+	"sync"
 )
 
 type OrderUseCase struct {
+	mutex       sync.Mutex
 	productRepo *repository.ProductRepository
 	orderRepo   *repository.OrderRepository
 	transRepo   *repository.TransactionRepository
 }
 
-func NewOrderUseCase(productRepo *repository.ProductRepository, orderRepo *repository.OrderRepository) *OrderUseCase {
+func NewOrderUseCase(mutex sync.Mutex, productRepo *repository.ProductRepository, orderRepo *repository.OrderRepository) *OrderUseCase {
 	return &OrderUseCase{
+		mutex:       mutex,
 		productRepo: productRepo,
 		orderRepo:   orderRepo,
 	}
@@ -31,7 +34,7 @@ func (o OrderUseCase) CreateOrder(req *order.OrderRequest) (res *order.OrderResp
 		}
 
 		if items.Quantity > product.AvailableStock {
-			return nil, error2.ErrBadParamInput
+			return nil, error2.TotalStockLessThanQty
 		}
 
 		item := domain.Item{ID: product.ID, ItemName: product.ProductName, Amount: product.Price}
@@ -43,7 +46,7 @@ func (o OrderUseCase) CreateOrder(req *order.OrderRequest) (res *order.OrderResp
 
 	result, err := o.orderRepo.CreateOrder(order)
 	if err != nil {
-		return nil, error2.ErrBadParamInput
+		return nil, error2.ErrBadRequest
 	}
 
 	mapstructure.Decode(result, &res)

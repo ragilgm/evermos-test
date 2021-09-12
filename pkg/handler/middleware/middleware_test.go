@@ -12,6 +12,8 @@ import (
 	"evermos_technical_test/pkg/handler/middleware"
 )
 
+const AccessOrigin = "Access-Control-Allow-Origin"
+
 func TestCORS(t *testing.T) {
 	e := echo.New()
 	req := test.NewRequest(echo.GET, "/", nil)
@@ -19,11 +21,11 @@ func TestCORS(t *testing.T) {
 	c := e.NewContext(req, res)
 	m := middleware.InitMiddleware()
 
-	h := m.CORS(echo.HandlerFunc(func(c echo.Context) error {
+	h := m.CORS(func(c echo.Context) error {
 		return c.NoContent(http.StatusOK)
-	}))
+	})
 
 	err := h(c)
 	require.NoError(t, err)
-	assert.Equal(t, "*", res.Header().Get("Access-Control-Allow-Origin"))
+	assert.Equal(t, "*", res.Header().Get(AccessOrigin))
 }

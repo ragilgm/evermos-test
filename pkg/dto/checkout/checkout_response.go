@@ -1,8 +1,8 @@
-package payment
+package checkout
 
 import "time"
 
-type PaymentResponse struct {
+type CheckoutResponse struct {
 	ID                uint      `json:"id"`
 	TransactionNumber string    `json:"transaction_number"`
 	OrderId           uint      `json:"order_id"`

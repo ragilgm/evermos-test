@@ -1,6 +1,6 @@
 package domain
 
-// Order
+// Order line item
 type Order struct {
 	ID          uint `gorm:"primary_key"`
 	Status      string
@@ -8,7 +8,7 @@ type Order struct {
 	OrderItems  []OrderItem
 }
 
-// Order line item
+// OrderItem Order line item
 type OrderItem struct {
 	ID       uint `gorm:"primary_key"`
 	OrderID  uint
@@ -18,7 +18,7 @@ type OrderItem struct {
 	Total    int32
 }
 
-// Product
+// Item Order line item
 type Item struct {
 	ID       uint `gorm:"primary_key"`
 	ItemName string
