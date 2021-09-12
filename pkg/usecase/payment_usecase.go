@@ -7,25 +7,34 @@ import (
 	"evermos_technical_test/pkg/dto/payment"
 	"evermos_technical_test/pkg/repository"
 	"github.com/mitchellh/mapstructure"
+	"sync"
 	"time"
 )
 
 type PaymentUseCase struct {
+	mutex       sync.Mutex
 	productRepo *repository.ProductRepository
 	orderRepo   *repository.OrderRepository
 	transRepo   *repository.TransactionRepository
 }
 
 func NewPaymentUseCase(
+	mutex sync.Mutex,
 	productRepo *repository.ProductRepository,
 	orderRepo *repository.OrderRepository,
 	transRepo *repository.TransactionRepository) *PaymentUseCase {
 	return &PaymentUseCase{
+		mutex:       mutex,
 		productRepo: productRepo,
 		orderRepo:   orderRepo,
 		transRepo:   transRepo,
 	}
 }
+
+const (
+	StatusPaid    = "PAID"
+	StatusPending = "PENDING"
+)
 
 func (p PaymentUseCase) Process(data interface{}) (interface{}, error) {
 
@@ -34,19 +43,25 @@ func (p PaymentUseCase) Process(data interface{}) (interface{}, error) {
 	var response *checkout.CheckoutResponse
 
 	// check transaction exist
-	transaction, _ = p.transRepo.GetTransactionByToken(request.Token)
+	transaction, err := p.transRepo.GetTransactionByToken(request.Token)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// check transaction exist
 	if transaction == nil {
-		return nil, error2.ErrBadRequest
+		return nil, error2.ErrNotFound
 	}
 
 	// check status transaction
-	if transaction.Status != "PENDING" {
+	if transaction.Status != StatusPending {
 		return nil, error2.ErrConflict
 	}
 
 	// check exipred token
 	if transaction.ExpiredAt.After(time.Now()) {
-		return nil, error2.ErrConflict
+		return nil, error2.TokenExpired
 	}
 
 	// get order
@@ -65,18 +80,27 @@ func (p PaymentUseCase) Process(data interface{}) (interface{}, error) {
 			product.StockOnHold -= orderItem.Quantity
 			product.StockSoldOut += orderItem.Quantity
 
-			// update stock product
-			go p.productRepo.UpdateProduct(product.ID, product)
+			go func() {
+				// update stock product
+				p.mutex.Lock()
+				_, err := p.productRepo.UpdateProduct(product.ID, product)
+				p.mutex.Unlock()
+				if err != nil {
+				}
+			}()
 
 		}
 
 		// update status transaction
-		transaction.Status = "PAID"
+		transaction.Status = StatusPaid
 
 		transaction, _ = p.transRepo.UpdateTransaction(transaction.ID, transaction)
 
 		// map model to response
-		mapstructure.Decode(transaction, &response)
+		err := mapstructure.Decode(transaction, &response)
+		if err != nil {
+			return nil, err
+		}
 
 		return response, nil
 

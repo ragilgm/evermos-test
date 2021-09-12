@@ -9,6 +9,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"math/rand"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -16,40 +17,48 @@ type CheckOutUseCase struct {
 	productRepo *repository.ProductRepository
 	orderRepo   *repository.OrderRepository
 	transRepo   *repository.TransactionRepository
+	mutex       sync.Mutex
 }
 
 func NewCheckOutUseCase(
+	mutex sync.Mutex,
 	productRepo *repository.ProductRepository,
 	orderRepo *repository.OrderRepository,
 	transRepo *repository.TransactionRepository) *CheckOutUseCase {
 	return &CheckOutUseCase{
+		mutex:       mutex,
 		productRepo: productRepo,
 		orderRepo:   orderRepo,
 		transRepo:   transRepo,
 	}
 }
 
+const (
+	defaultFormatInvoice = "INV/"
+)
+
 func (c CheckOutUseCase) Process(data interface{}) (interface{}, error) {
-
-	min := 10
-	max := 30
-
+	c.mutex.Lock()
+	// cash request interface to object
 	request := data.(*checkout.CheckOutRequest)
+
+	// initial domain object
 	var transaction *domain.Transaction
+
+	// initial response object
 	var response *checkout.CheckoutResponse
 
 	// check transaction exist
 	checkTransaction, _ := c.transRepo.GetTransactionByOrderId(request.OrderId)
+
 	if checkTransaction != nil {
-		if checkTransaction.Status == "SUCCESS" || checkTransaction.Status == "FAILED" {
-			return nil, error2.ErrConflict
-		}
+		return nil, error2.OrderHasBeenExist
 	}
 
 	// get order
 	order, err := c.orderRepo.GetOrderById(request.OrderId)
 	if err != nil {
-		return nil, err
+		return nil, error2.ErrNotFound
 	}
 
 	//check order exist
@@ -59,10 +68,12 @@ func (c CheckOutUseCase) Process(data interface{}) (interface{}, error) {
 		if err != nil {
 			return nil, err
 		}
-		initialTransaction.TransactionNumber = "INV/" + strconv.Itoa(rand.Intn(max-min))
+
+		// create object transactionS
+		initialTransaction.TransactionNumber = defaultFormatInvoice + strconv.Itoa(rand.Intn(100))
 		initialTransaction.TransactionToken = uuid.New().String()
 		initialTransaction.TransactionDate = time.Now().Add(time.Hour * 24)
-		initialTransaction.Status = "PENDING"
+		initialTransaction.Status = domain.Pending
 
 		for _, orderItem := range order.OrderItems {
 			// get product
@@ -70,29 +81,29 @@ func (c CheckOutUseCase) Process(data interface{}) (interface{}, error) {
 
 			// check available
 			if product.AvailableStock < orderItem.Quantity {
-				return nil, error2.ErrBadRequest
+				return nil, error2.TotalStockLessThanQty
 			}
 
 			product.AvailableStock -= orderItem.Quantity
 			product.StockOnHold += orderItem.Quantity
 
-			// update stock product
 			go func() {
-				_, err := c.productRepo.UpdateProduct(product.ID, product)
-				if err != nil {
+				// update stock product
 
+				_, err := c.productRepo.UpdateProduct(product.ID, product)
+				c.mutex.Unlock()
+				if err != nil {
 				}
 			}()
-
 		}
 
 		// check checkout valid
 		if request.Amount != order.TotalAmount {
-			return nil, error2.ErrBadRequest
+			return nil, error2.CheckSumPaymentNotMatch
 		}
 
 		// create initial transaction
-		transaction, _ = c.transRepo.CreateTransaction(&initialTransaction)
+		transaction, err = c.transRepo.CreateTransaction(&initialTransaction)
 
 		if err != nil {
 			return nil, error2.ErrBadRequest

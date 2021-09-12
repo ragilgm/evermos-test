@@ -19,6 +19,8 @@ func (db *DbConfig) Connect() (*gorm.DB, error) {
 	if err != nil {
 		fmt.Println("statuse: ", err)
 	}
+
+	// migrate database
 	db.DB.AutoMigrate(&domain.Product{})
 	db.DB.AutoMigrate(&domain.Order{})
 	db.DB.AutoMigrate(&domain.OrderItem{})

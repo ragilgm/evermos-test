@@ -50,27 +50,33 @@ Based on your proposed solution, build a Proof of Concept that demonstrates tech
 
 MY Opinion :
 
-The problem occurred because there were concurrent transactions and a reduction in the number of items was carried out at the end after the payment was completed, which resulted in an error in reducing stock
+Issue :
 
+This problem occurs because there are concurrent transactions, and something is wrong in the stock reduction mechanism, it could be that currently stock reduction is carried out after the transaction process is complete, before the transaction process is carried out we must first move the stock product from available to booked stock, so that stock that has been ordered cannot be taken by other users
 
 Solution :
 
+1. Because many concurrent requests implement goroutines to handle concurrent processes,
+   to prevent race conditions
+   implement mutex.
+
+for the other solutions i.e
 Suppose we have 3 variables below
 stock available
 stock on hold
-stock sold out
+out of stock
 
-when the user checkout process: check stock availability, if stock is available, move the value from stock available -> stock on hold
+during user checkout process: check stock availability, if stock available, move the value from available stock -> stock on hold
 
 wait until the payment deadline
 
-if the payment is successful
+if payment is successful
 update stock from on hold -> stock sold out
 
-create scheduler for check expired time
+create a scheduler to check expiration time
 
-if the payment is not made until the deadline
-then return the stock from stock on hold -> stock available 
+if payment is not made by the deadline
+then return stock from held stock -> stock available
 
 diagram flow checkout
 

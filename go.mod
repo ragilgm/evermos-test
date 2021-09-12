@@ -3,6 +3,7 @@ module evermos_technical_test
 go 1.17
 
 require (
+	github.com/bxcodec/faker v2.0.1+incompatible
 	github.com/go-playground/validator/v10 v10.9.0
 	github.com/google/uuid v1.1.2
 	github.com/jinzhu/gorm v1.9.16
@@ -24,6 +25,7 @@ require (
 	github.com/mattn/go-colorable v0.1.2 // indirect
 	github.com/mattn/go-isatty v0.0.9 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/stretchr/objx v0.1.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.0.1 // indirect
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect

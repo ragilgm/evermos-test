@@ -2,6 +2,12 @@ package domain
 
 import "time"
 
+const (
+	Pending = "PENDING"
+	Success = "SUCCESS"
+	Failed  = "FAILED"
+)
+
 type Transaction struct {
 	ID                uint `gorm:"primary_key"`
 	TransactionNumber string

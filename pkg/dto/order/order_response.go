@@ -1,5 +1,6 @@
 package order
 
+// OrderResponse line item
 type OrderResponse struct {
 	ID          uint   `json:"id"`
 	Status      string `json:"status"`
@@ -7,7 +8,7 @@ type OrderResponse struct {
 	OrderItems  []OrderItemResponse `json:"order_items"`
 }
 
-// Order line item
+// OrderItemResponse line item
 type OrderItemResponse struct {
 	ID       uint         `json:"id"`
 	OrderID  uint         `json:"order_id"`
@@ -17,7 +18,7 @@ type OrderItemResponse struct {
 	Total    float32      `json:"total"`
 }
 
-// Product
+// ItemResponse line item
 type ItemResponse struct {
 	ID       uint    `json:"id"`
 	ItemName string  `json:"item_name"`

@@ -23,7 +23,6 @@ func NewPaymentHandler(e *echo.Echo, us *usecase.PaymentUseCase) {
 
 func (p PaymentHandler) PaymentProcess(context echo.Context) (err error) {
 	var request payment.PaymentRequest
-
 	// collect request
 	err = context.Bind(&request)
 

@@ -10,12 +10,12 @@ import (
 )
 
 type CheckOutHandler struct {
-	checkOutUseCase *usecase.CheckOutUseCase
+	CheckOutUseCase *usecase.CheckOutUseCase
 }
 
 func NewCheckOutHandler(e *echo.Echo, us *usecase.CheckOutUseCase) {
 	handler := &CheckOutHandler{
-		checkOutUseCase: us,
+		CheckOutUseCase: us,
 	}
 	// ENDPOINT
 	e.POST("/transactions/checkouts", handler.CheckOutProcess)
@@ -23,7 +23,6 @@ func NewCheckOutHandler(e *echo.Echo, us *usecase.CheckOutUseCase) {
 
 func (p CheckOutHandler) CheckOutProcess(context echo.Context) (err error) {
 	var request checkout.CheckOutRequest
-
 	// collect request
 	err = context.Bind(&request)
 
@@ -38,8 +37,7 @@ func (p CheckOutHandler) CheckOutProcess(context echo.Context) (err error) {
 		return context.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	// call useCase
-	res, err := p.checkOutUseCase.Process(&request)
+	res, err := p.CheckOutUseCase.Process(&request)
 
 	if err != nil {
 		return context.JSON(error2.GetStatusCode(err), error2.ResponseError{Message: err.Error()})
