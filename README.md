@@ -4,6 +4,10 @@ code architecture
 
 ![img.png](img.png)
 
+schema database 
+
+![img_5.png](img_5.png)
+
 how to run 
 
 how to run:
@@ -52,15 +56,18 @@ MY Opinion :
 
 Issue :
 
-This problem occurs because there are concurrent transactions, and something is wrong in the stock reduction mechanism, it could be that currently stock reduction is carried out after the transaction process is complete, before the transaction process is carried out we must first move the stock product from available to booked stock, so that stock that has been ordered cannot be taken by other users
+This problem occurs because transactions occur simultaneously so that there is a clash between request 1 and the other requests while the database has not been fully updated, and there may be something wrong with the stock reduction mechanism, it could be that stock reduction is currently done after the transaction process is complete, before the process is completed. the transaction is done we must first move the product stock from available to stock that has been ordered, so that the stock that has been ordered cannot be taken by other users
 
 Solution :
 
-1. Because many concurrent requests implement goroutines to handle concurrent processes,
-   to prevent race conditions
-   implement mutex.
+1. I have a reference that I think is a solution to deal with this problem
 
-for the other solutions i.e
+https://medium.com/dm03514-tech-blog/golang-introduction-to-race-conditions-for-the-web-engineer-738513ab2ec2
+
+I don't know how to implement this properly but I think it's a workaround for dealing with flashshale where racing conditions are bound to happen
+
+2. and to improve stock reduction
+
 Suppose we have 3 variables below
 stock available
 stock on hold
